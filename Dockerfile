@@ -1,11 +1,11 @@
 FROM python:3.11-slim
 
 # Install system dependencies including Chromium and its driver
+# Removed libgconf-2-4 as it is not available/needed in newer Debian versions
 RUN apt-get update && apt-get install -y \
     chromium \
     chromium-driver \
     libnss3 \
-    libgconf-2-4 \
     libfontconfig1 \
     wget \
     gnupg \
@@ -23,7 +23,7 @@ RUN mkdir tweetcapture
 COPY . tweetcapture/
 
 # Set PYTHONPATH to /app so that 'import tweetcapture' resolves to /app/tweetcapture
-ENV PYTHONPATH="${PYTHONPATH}:/app"
+ENV PYTHONPATH="/app"
 
 # Set environment variables for Selenium
 ENV CHROME_DRIVER=/usr/bin/chromedriver
