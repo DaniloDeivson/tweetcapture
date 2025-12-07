@@ -16,23 +16,25 @@ app = FastAPI()
 
 class CaptureRequest(BaseModel):
     tweet_url: str
+    mode: int = 3
+    night_mode: int = 0
 
 @app.get("/capture")
-async def capture_get(tweet_url: str):
-    return await process_capture(tweet_url)
+async def capture_get(tweet_url: str, mode: int = 3, night_mode: int = 0):
+    return await process_capture(tweet_url, mode, night_mode)
 
 @app.post("/capture")
 async def capture_post(request: CaptureRequest):
-    return await process_capture(request.tweet_url)
+    return await process_capture(request.tweet_url, request.mode, request.night_mode)
 
-async def process_capture(tweet_url: str):
+async def process_capture(tweet_url: str, mode: int = 3, night_mode: int = 0):
     filename = f"tmp_{uuid.uuid4()}.png"
     try:
         tweet = TweetCapture()
-        # The mode=3 (default) captures everything. 
-        # night_mode=0 (default) is light mode.
+        # mode: 0-4 (controls what is shown in footer)
+        # night_mode: 0-2 (0=light, 1=dim, 2=black)
         try:
-            path = await tweet.screenshot(tweet_url, filename, mode=3, night_mode=0)
+            path = await tweet.screenshot(tweet_url, filename, mode=mode, night_mode=night_mode)
         except Exception as e:
              # If screenshot fails, it raises Exception
              raise HTTPException(status_code=400, detail=f"Failed to capture tweet: {str(e)}")
