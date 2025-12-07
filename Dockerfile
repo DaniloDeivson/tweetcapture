@@ -1,19 +1,24 @@
-FROM python:3.11.5-alpine
+# Usamos imagem Python e Alpine pra manter leve
+FROM python:3.11-alpine as base
 
-RUN apk add --update --update-cache\
-    chromium \
-    chromium-chromedriver
-
-WORKDIR /opt
-
-COPY requirements.txt /opt/requirements.txt
-
-RUN pip install -r requirements.txt
-
-COPY . /opt
-
-RUN pip install --no-deps .
+# Instala dependências do sistema (caso precise de libs para renderização, imagem, etc).
+RUN apk add --no-cache \
+    build-base \
+    libjpeg-turbo-dev \
+    zlib-dev \
+    && rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
-ENTRYPOINT  ["tweetcapture", "--chromedriver", "/usr/bin/chromedriver"]
+# Copia arquivos de definição de dependências
+COPY requirements.txt ./
+
+# Instala dependências python
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copia o restante do código fonte
+COPY . .
+
+# Caso o app tenha um entrypoint ou comando default
+# Exemplo: chamar um script principal ou CLI
+CMD ["python", "-m", "tweetcapture.cli"]
