@@ -2,3 +2,6 @@ selenium>=4.0.0
 webdriver-manager>=3.8.5
 packaging
 Pillow>=9.3.0
+fastapi
+uvicorn
+python-multipart
